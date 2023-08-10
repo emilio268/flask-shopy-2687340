@@ -1,6 +1,6 @@
 #dependencia flask 
 
-from flask import Flask
+from flask import Flask, render_template
 # dependencias de modelos 
 
 from flask_sqlalchemy import SQLAlchemy
@@ -8,16 +8,22 @@ from flask_sqlalchemy import SQLAlchemy
 #dependencia de las migraciones 
 from flask_migrate import Migrate
 
-#dependencia para fecha y hoira del sistema 
+#dependencia para fecha y hora del sistema 
 from datetime import datetime
+
+#dependencias de wtform
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+
 
 #crear el objeto flask 
 app = Flask(__name__)
 
 #definir la cadena de conexión (connectionstring)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/flask-shopy-2687340'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:admin@localhost:3311/flask-shopy-2687340'
 app.config['SQLALCHEMY_TRACK_NOTIFICATIONS'] = False 
+app.config['SECRET_KEY'] = 'Danaiko'
 
 #Crear el objeto de Modelos
 
@@ -27,6 +33,13 @@ db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
 
+#Crear Formulario de registro de productos
+
+class ProductosForm(FlaskForm):
+    nombre = StringField('Ingrese un nombre para el producto')
+    precio = StringField('Ingrese un precio para el producto')
+    submit = SubmitField('Registrar Producto')
+
 #Crear los modelos:
 class Cliente(db.Model):
     #Definir los atributos
@@ -35,6 +48,13 @@ class Cliente(db.Model):
     username = db.Column(db.String(120), nullable = True)
     password = db.Column(db.String(128), nullable = True)
     email = db.Column(db.String(128), nullable = True)
+    
+#relacines SQL alchemy
+
+    ventas = db.relationship('Venta', 
+                             backref = "cliente",
+                             lazy = "dynamic")
+
     
 class Producto(db.Model):
     #Definir los Atributos
@@ -67,5 +87,20 @@ class Detalle (db.Model):
                            db.ForeignKey('productos.id'))
     
     venta_id = db.Column(db.Integer, 
-                           db.ForeignKey('ventas.id'))
+                           db.ForeignKey('ventas.id'))    
+    
+    #Rutas: 
+@app.route('/productos', methods = ['GET', 'POST'])
+def nuevo_producto():
+    form = ProductosForm()
+    if form.validate_on_submit():
+        #Creamos un nuevo producto
+        p = Producto(nombre = form.nombre.data, 
+                     precio = form.precio.data)
+        db.session.add(p)
+        db.session.commit()
+        return "produto Registrado" 
+    
+    return render_template('nuevo_producto.html',
+                    form = form)
     
