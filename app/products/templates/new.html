@@ -1,22 +1,19 @@
-<!DOCTYPE html>
-
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>formulario</title>
-     
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
-    </head>
+{%{% extends 'bootstrap/base.html' %} %}
+{% import 'bootstrap/wtf.html'%}
+{% block head %}
+ {{soper ()}}
+{% endblock %}
     <body>
-        
+        {%block body%}
         <h1> Nuevo Producto:</h1>
-        
+        <form action =""
+              method="POST">
+            </form>
+        {%endblock%}
         
 
         </form>
     
     </body>
-</html>
+
 
